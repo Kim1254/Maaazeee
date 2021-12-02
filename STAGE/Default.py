@@ -127,24 +127,15 @@ class Default(Stage):
         y += array.shape[0] + 10
 
         retry = ImagedButton(x, y, 'Retry')
-        if tm.game_language == translation_korean:
-            retry.SetImage(
-                './image/default/retry0_k.png', './image/default/retry1_k.png', './image/default/retry2_k.png',
-                80, 80)
-        else:
-            retry.SetImage(
-                './image/default/retry0.png', './image/default/retry1.png', './image/default/retry2.png', 80, 80)
+        retry.SetImage(
+            TImg('./image/default/retry0'), TImg('./image/default/retry1'), TImg('./image/default/retry2'),
+            80, 80)
         retry.canvas_hook(self.master.canvas)
 
         exit = ImagedButton(x + 100, y, 'Stage_Exit')
-        if tm.game_language == translation_korean:
-            exit.SetImage(
-                './image/default/exit0_k.png', './image/default/exit1_k.png', './image/default/exit2_k.png',
-                80, 80)
-        else:
-            exit.SetImage(
-                './image/default/exit0.png', './image/default/exit1.png', './image/default/exit2.png',
-                80, 80)
+        exit.SetImage(
+            TImg('./image/default/exit0'), TImg('./image/default/exit1'), TImg('./image/default/exit2'),
+            80, 80)
         exit.canvas_hook(self.master.canvas)
 
         y += 90
@@ -497,12 +488,9 @@ class Default(Stage):
             ft.SetColor(255, 50, 50)
         else:
             next = ImagedButton(self.master.width * 0.65 + 50, y - 90, 'NextStage')
-            if tm.game_language == translation_korean:
-                next.SetImage(
-                    './image/default/next0_k.png', './image/default/next1_k.png', './image/default/next2_k.png', 80, 80)
-            else:
-                next.SetImage(
-                    './image/default/next0.png', './image/default/next1.png', './image/default/next2.png', 80, 80)
+            next.SetImage(
+                TImg('./image/default/next0'), TImg('./image/default/next1'), TImg('./image/default/next2'),
+                80, 80)
             next.canvas_hook(self.master.canvas)
             next.Event_Bind()
 
@@ -699,13 +687,9 @@ class Default(Stage):
         y += array.shape[0] + 60
 
         button = ImagedButton(x - 40, y, 'MakeMap')
-
-        if tm.game_language == translation_korean:
-            button.SetImage(
-                './image/default/make0_k.png', './image/default/make1_k.png', './image/default/make2_k.png', 80, 80)
-        else:
-            button.SetImage(
-                './image/default/make0.png', './image/default/make1.png', './image/default/make2.png', 80, 80)
+        button.SetImage(
+            TImg('./image/default/make0'), TImg('./image/default/make1'), TImg('./image/default/make2'),
+            80, 80)
         button.canvas_hook(self.master.canvas)
         button.Event_Bind()
 

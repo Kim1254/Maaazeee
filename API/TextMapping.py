@@ -134,6 +134,13 @@ translation_korean = {
 game_language = translation_english
 
 
+def TImg(path):
+    if game_language == translation_korean:
+        return path + '_k.png'
+
+    return path + '.png'
+
+
 def Translate(key_string):
     if key_string not in game_language.keys():
         return key_string
