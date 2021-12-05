@@ -12,8 +12,8 @@ class ColoredLabel(Label):
         self.bind("<Enter>", self.Event_Enter)
         self.bind("<Leave>", self.Event_Leave)
 
-    def bind(self, sequence=None, func=None):
-        i = super(ColoredLabel, self).bind(sequence, func, "+")
+    def bind(self, sequence=None, func=None, add="+"):
+        i = super(ColoredLabel, self).bind(sequence, func, add)
         self.bind_list.append([sequence, i])
         return i
 

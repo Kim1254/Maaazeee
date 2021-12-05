@@ -41,7 +41,7 @@ class SoundManager:
             return False
         return True
 
-    def Play(self, fp, channel: ChannelList, loop=0, volume=1.0):
+    def Play(self, fp, channel: ChannelList, loop=0, volume=-1.0):
         if self.Valid(channel) is False:
             return
         sound = mixer.Sound(fp)
@@ -52,7 +52,9 @@ class SoundManager:
             mixer.Channel(channel.value).stop()
 
         mixer.Channel(channel.value).play(sound, loop)
-        mixer.Channel(channel.value).set_volume(volume)
+
+        if volume != -1.0:
+            mixer.Channel(channel.value).set_volume(volume)
 
     def Fadeout(self, channel: ChannelList, time=1):
         if self.Valid(channel) is False:
@@ -64,8 +66,6 @@ class SoundManager:
 
     def Volume(self, channel: ChannelList, ratio):
         if self.Valid(channel) is False:
-            return
-        if mixer.Channel(channel.value).get_busy() is False:
             return
 
         mixer.Channel(channel.value).set_volume(ratio)
