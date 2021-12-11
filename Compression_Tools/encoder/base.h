@@ -11,6 +11,17 @@
 #include <io.h>
 #include <direct.h>
 
+#include <future>
+#include <thread>
+#include <chrono>
+#include <mutex>
+
+#include <fstream>
+#include <filesystem>
+
+#include <algorithm>
+#include <functional>
+
 #include "encode.h"
 
 #endif

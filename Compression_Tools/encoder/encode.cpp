@@ -1,16 +1,5 @@
 #include "base.h"
 
-#include <future>
-#include <thread>
-#include <chrono>
-#include <mutex>
-
-#include <fstream>
-#include <filesystem>
-
-#include <algorithm>
-#include <functional>
-
 #pragma warning(disable: 6031)
 
 using namespace std;
@@ -19,7 +8,7 @@ using namespace chrono_literals;
 using table = unordered_map<char, long long>;
 using cstrmap = unordered_map<char, string>;
 
-void HuffmanTree(cstrmap& map, unique_ptr<node_t>& node, string str)
+void Make_HuffmanTree(cstrmap& map, unique_ptr<node_t>& node, string str)
 {
 	if (node == nullptr)
 		return;
@@ -28,8 +17,8 @@ void HuffmanTree(cstrmap& map, unique_ptr<node_t>& node, string str)
 		map.insert(cstrmap::value_type(node->value.first, str));
 	else
 	{
-		HuffmanTree(map, node->left, str + "0");
-		HuffmanTree(map, node->right, str + "1");
+		Make_HuffmanTree(map, node->left, str + "0");
+		Make_HuffmanTree(map, node->right, str + "1");
 	}
 }
 
@@ -42,6 +31,24 @@ unsigned int TreeSize(unique_ptr<node_t>& node)
 	size += TreeSize(node->left);
 	size += TreeSize(node->right);
 	return size;
+}
+
+void Write_Huffman(ofstream& file, unique_ptr<node_t>& node)
+{
+	if (node == nullptr)
+		return;
+
+	file << node->value.first;
+	union swapping {
+		long long value;
+		char c[8];
+	} temp;
+
+	temp.value = node->value.second;
+	file.write(temp.c, 8);
+
+	Write_Huffman(file, node->left);
+	Write_Huffman(file, node->left);
 }
 
 unique_ptr<node_t> Huffman(vector<string>& file_list)
@@ -124,6 +131,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		return nullptr;
 
 	vector<unique_ptr<node_t>> counter;
+	counter.reserve(map.size());
 
 	pcll value;
 	for (auto iter = map.begin(); iter != map.end(); ++iter)
@@ -136,11 +144,6 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		[](unique_ptr<node_t>& a, unique_ptr<node_t>& b) -> bool {
 		return a->value.second < b->value.second;
 	});
-
-	for (auto iter = counter.begin(); iter != counter.end(); ++iter)
-	{
-		cout << (int)(*iter)->value.first << ": " << (*iter)->value.second << endl;
-	}
 
 	cout << "Character count complete. (Total " << counter.size() << ")" << endl;
 
@@ -156,6 +159,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 				fmin = iter;
 				continue;
 			}
+
 			if (smin == counter.end())
 			{
 				smin = iter;
@@ -174,29 +178,37 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		auto fptr = move(*fmin);
 		auto sptr = move(*smin);
 
-		value = make_pair(0, fptr->value.second + sptr->value.second);
-		counter.push_back(make_unique<node_t>(fptr, value, sptr));
-
 		if (fmin > smin)
 		{
-			counter.erase(fmin);
-			counter.erase(smin);
+			if (distance(counter.begin(), fmin) != counter.size() - 1)
+				iter_swap(counter.end() - 1, fmin);
+			counter.pop_back();
+
+			if (distance(counter.begin(), smin) != counter.size() - 1)
+				iter_swap(counter.end() - 1, smin);
+			counter.pop_back();
 		}
 		else
 		{
-			counter.erase(smin);
-			counter.erase(fmin);
+			if (distance(counter.begin(), smin) != counter.size() - 1)
+				iter_swap(counter.end() - 1, smin);
+			counter.pop_back();
+
+			if (distance(counter.begin(), fmin) != counter.size() - 1)
+				iter_swap(counter.end() - 1, fmin);
+			counter.pop_back();
 		}
+
+		value = make_pair(0, fptr->value.second + sptr->value.second);
+		counter.push_back(make_unique<node_t>(fptr, value, sptr));
 	}
 
 	auto head = move(counter.front());
 	cout << "Tree construction complete. (Total " << TreeSize(head) << " nodes)" << endl;
 
 	cstrmap char_map;
-	HuffmanTree(char_map, head, "");
+	Make_HuffmanTree(char_map, head, "");
 
-	for (auto iter = char_map.begin(); iter != char_map.end(); ++iter)
-		cout << (int)iter->first << ": " << iter->second << endl;
 	cout << "Huffman tree construction complete. (Total " << char_map.size() << ")" << endl;
 
 	ofstream fout;
@@ -209,8 +221,9 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		return nullptr;
 	}
 	fout << ".HUFFMAN";
+	Write_Huffman(fout, head);
 
-	function write_task = [&head, &char_map](const char* buf, vector<bool>& wbuf, unsigned long long i, int length) {
+	function write_task = [&char_map](const char* buf, vector<bool>& wbuf, unsigned long long i, int length) {
 		string str = "";
 		table::iterator iter;
 		for (unsigned long long i = 0; i < length; i++)
@@ -221,6 +234,13 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	};
 
 	i = 0;
+	string output_name = "";
+	string output_context = "";
+
+	vector<bool> name;
+	vector<vector<bool>> sub_buffer;
+
+	char c;
 
 	for (auto& file : file_list)
 	{
@@ -228,6 +248,16 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 			cout << "Write(" << ++i << "/" << file_list.size() << "): " << file.c_str() << endl;
 
 			fin.open(file.c_str(), ios::binary);
+
+			output_name += file;
+			for (int i = 0; i < 4; i++)
+			{
+				c = 0;
+				for (int j = 0; j < 8; j++)
+					if ((1 << (i * 8 + j)) & output_context.size())
+						c |= (1 << (8 - j));
+				output_name.push_back(c);
+			};
 
 			auto file_size = filesystem::file_size(file);
 			auto buf = make_unique<char[]>(file_size);
@@ -238,7 +268,6 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 			if (file_size % length)
 				sub_buf_size++;
 
-			vector<vector<bool>> sub_buffer;
 			sub_buffer.reserve(sub_buf_size);
 
 			for (unsigned long long i = 0; i < file_size; i += length)
@@ -267,18 +296,18 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 				for (int i = 0; i < sub.size(); i += 8)
 				{
 					int iMin = min(i + 8, (int)sub.size());
-					char c = 0;
+					c = 0;
 
 					for (int j = i; j < iMin; j++)
 					{
 						if (sub[j] == true)
-							c |= (1 << (j - i));
+							c |= (1 << (8 - j - i));
 					}
-					fout << c;
+					output_context.push_back(c);
 				}
-				sub.clear();
+				vector<bool>().swap(sub);
 			}
-			sub_buffer.clear();
+			vector<vector<bool>>().swap(sub_buffer);
 
 			buf.reset();
 			fin.close();
@@ -288,6 +317,14 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 			return nullptr;
 		}
 	}
+
+	fout.write(output_name.c_str(), output_name.size());
+	fout.write(output_context.c_str(), output_context.size());
+
+	vector<unique_ptr<node_t>>().swap(counter);
+	vector<bool>().swap(name);
+	vector<future<void>>().swap(threads);
+	vector<future<void>>().swap(sub_threads);
 
 	fout.close();
 	cout << "Write ends." << endl;
