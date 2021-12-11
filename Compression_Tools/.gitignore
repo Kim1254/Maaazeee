@@ -8,3 +8,5 @@
 *.lastbuildstate
 *.ilk
 *.idb
+*.res
+*.log
