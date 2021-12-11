@@ -1,0 +1,10 @@
+.vs
+*.pdb
+*.obj
+*.recipe
+*.iobj
+*.ipdb
+*.tlog
+*.lastbuildstate
+*.ilk
+*.idb
