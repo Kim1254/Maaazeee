@@ -1,7 +1,4 @@
-﻿#include <iostream>
-#include <string>
-#include <vector>
-#include <bitset>
+#include "base.h"
 
 #include <future>
 #include <thread>
@@ -14,38 +11,13 @@
 #include <algorithm>
 #include <functional>
 
-#include <io.h>
-#include <direct.h>
-
 #pragma warning(disable: 6031)
 
 using namespace std;
-
 using namespace chrono_literals;
 
 using table = unordered_map<char, long long>;
 using cstrmap = unordered_map<char, string>;
-using pcll = pair<char, long long>;
-
-typedef struct node_s {
-	struct node_s(std::unique_ptr<struct node_s>& left, pcll& value, std::unique_ptr<struct node_s>& right)
-	{
-		this->left = std::move(left);
-		this->value = value;
-		this->right = std::move(right);
-	};
-
-	struct node_s(pcll& value)
-	{
-		this->left = nullptr;
-		this->value = value;
-		this->right = nullptr;
-	};
-
-	std::unique_ptr<struct node_s> left;
-	pcll value;
-	std::unique_ptr<struct node_s> right;
-} node_t;
 
 void HuffmanTree(cstrmap& map, unique_ptr<node_t>& node, string str)
 {
@@ -107,7 +79,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	{
 		try {
 			cout << "Read(" << ++i << "/" << file_list.size() << "): " << file.c_str() << endl;
-			
+
 			fin.open(file.c_str(), ios::binary);
 
 			auto file_size = filesystem::file_size(file);
@@ -147,7 +119,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 
 	for (auto& fu : threads)
 		while (fu.wait_for(0ms) != future_status::ready); // join
-	
+
 	if (!map.size())
 		return nullptr;
 
@@ -156,7 +128,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	pcll value;
 	for (auto iter = map.begin(); iter != map.end(); ++iter)
 	{
-		value = pcll(iter->first, iter->second);
+		value = make_pair(iter->first, iter->second);
 		counter.push_back(make_unique<node_t>(value));
 	}
 
@@ -202,7 +174,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		auto fptr = move(*fmin);
 		auto sptr = move(*smin);
 
-		value = pcll(0, fptr->value.second + sptr->value.second);
+		value = make_pair(0, fptr->value.second + sptr->value.second);
 		counter.push_back(make_unique<node_t>(fptr, value, sptr));
 
 		if (fmin > smin)
@@ -320,57 +292,5 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	fout.close();
 	cout << "Write ends." << endl;
 
-	return nullptr;
-}
-
-void SearchFiles(const char* path, vector<string>& list)
-{
-	string ppath = path;
-	ppath += "\\*.*";
-
-	_finddata_t fd;
-
-	auto handle = _findfirst(ppath.c_str(), &fd);
-
-	for (auto result = handle; result != -1; result = _findnext(handle, &fd))
-	{
-		if (!strncmp(fd.name, ".", 2) || !strncmp(fd.name, "..", 2))
-			continue;
-
-		if (fd.attrib == _A_SUBDIR)
-		{
-			SearchFiles((ppath.substr(0, ppath.length() - 3) + fd.name).c_str(), list);
-			continue;
-		}
-
-		list.push_back(ppath.substr(0, ppath.length() - 3) + fd.name);
-	}
-
-	_findclose(handle);
-}
-
-int main(int argc, char* argv[])
-{
-	if (argc != 2)
-		return 1;
-
-	string target = argv[1];
-
-	vector<string> file_list;
-	SearchFiles(target.c_str(), file_list);
-
-	auto cut = target.length() + 1; // \\
-
-	for (auto iter = file_list.begin(); iter != file_list.end(); ++iter)
-	{
-		*iter = iter->substr(cut, iter->length());
-		//cout << *iter << endl;
-	}
-
-	_chdir(argv[1]);
-
-	Huffman(file_list);
-	system("pause>nul");
-
-	return 1;
+	return head;
 }
