@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	vector<string> file_list;
 	size_t cut;
 
-	std::function get_last_index = [](string& str, char token) -> int {
+	std::function get_last_index = [](string& str, char token) -> int { // function to remove path. only remain the name.
 		int index = 0;
 
 		const char* p = str.c_str();
@@ -63,22 +63,22 @@ int main(int argc, char* argv[])
 		return index;
 	};
 
-	if (std::filesystem::is_directory(target))
+	if (std::filesystem::is_directory(target)) // look for sub directory if it is directory.
 	{
 		SearchFiles(target.c_str(), file_list);
 		cut = target.length() + 1; // \\.
 	}
-	else
+	else // ..else just include it.
 	{
 		file_list.push_back(target);
 		cut = get_last_index(target, '\\') + 1;
 	}
 
 	int end = 0;
-	string orig_wd = argv[0];
+	string orig_wd = argv[0]; // original working directory.
 	g_strPath = orig_wd.substr(0, get_last_index(orig_wd, '\\'));
 
-	for (auto iter = file_list.begin(); iter != file_list.end(); ++iter)
+	for (auto iter = file_list.begin(); iter != file_list.end(); ++iter) // replace the path(remove context of working directory.)
 		*iter = iter->substr(cut, iter->length());
 
 	if (std::filesystem::is_directory(argv[1]))

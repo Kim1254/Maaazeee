@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// TODO: Read 4 character and convert it as long.
 long ReadLong(const char* buf)
 {
 	union swap {
@@ -17,6 +18,7 @@ long ReadLong(const char* buf)
 	return temp.l;
 }
 
+// TODO: Read 8 character and convert it as double long.
 long long ReadDoubleLong(const char* buf)
 {
 	union swap {
@@ -27,10 +29,11 @@ long long ReadDoubleLong(const char* buf)
 	return temp.ll;
 }
 
-shared_ptr<snode_t> Make_HuffmanTree(const char* buf, unsigned int length)
+// TODO: Make a huffman tree, same as one of encode.cpp
+shared_ptr<node_t> Make_HuffmanTree(const char* buf, unsigned int length)
 {
 	pcll value;
-	vector<shared_ptr<snode_t>> list;
+	vector<shared_ptr<node_t>> list;
 
 	for (int i = 0; i < length; i++)
 	{
@@ -40,10 +43,10 @@ shared_ptr<snode_t> Make_HuffmanTree(const char* buf, unsigned int length)
 		value.second = ReadDoubleLong(buf);
 		buf += 8;
 
-		list.push_back(make_shared<snode_t>(value));
+		list.push_back(make_shared<node_t>(value));
 	}
 
-	shared_ptr<snode_t> head = nullptr;
+	shared_ptr<node_t> head = nullptr;
 
 	while (list.size() != 1)
 	{
@@ -98,7 +101,7 @@ shared_ptr<snode_t> Make_HuffmanTree(const char* buf, unsigned int length)
 		}
 
 		value = make_pair(0, fptr->value.second + sptr->value.second);
-		list.push_back(make_shared<snode_t>(fptr, value, sptr));
+		list.push_back(make_shared<node_t>(fptr, value, sptr));
 	}
 
 	head = *list.begin();
@@ -131,11 +134,13 @@ void RemoveFolder(string& path)
 	filesystem::remove(path.c_str());
 }
 
-bool WriteFile(string& name, shared_ptr<snode_t>& head, unique_ptr<bool[]>& huffman_str, int length)
+// TODO: Write decoded texts with encoded text and huffman tree's root node.
+bool WriteFile(string& name, shared_ptr<node_t>& head, unique_ptr<bool[]>& huffman_str, int length)
 {
 	if (!head)
 		return true;
 
+	// Make sub directories.
 	int index;
 	const char* p = name.c_str();
 	const char* q = strchr(p, '\\');
@@ -149,7 +154,6 @@ bool WriteFile(string& name, shared_ptr<snode_t>& head, unique_ptr<bool[]>& huff
 		q = strchr(p + 1, '\\');
 	}
 
-	cout << "Write file: " << name << endl;
 	ofstream fout;
 	try {
 		fout.open(name, ios::out | ios::binary);
@@ -160,13 +164,13 @@ bool WriteFile(string& name, shared_ptr<snode_t>& head, unique_ptr<bool[]>& huff
 	}
 
 	auto node = head;
-	shared_ptr<snode_t> nextnode;
+	shared_ptr<node_t> nextnode;
 
 	for (int i = 0; i < length; i++)
 	{
-		nextnode = (!huffman_str[i]) ? node->left : node->right;
-		int('\n');
-		if (!nextnode->left)
+		nextnode = (!huffman_str[i]) ? node->left : node->right; // left: 0, right: 1
+
+		if (!nextnode->left) // leaf node: write
 		{
 			fout.put(nextnode->value.first);
 			node = head;
@@ -175,19 +179,18 @@ bool WriteFile(string& name, shared_ptr<snode_t>& head, unique_ptr<bool[]>& huff
 			node = nextnode;
 	}
 	fout.close();
-	cout << "Complete." << endl;
 	return false;
 }
 
 vector<string> Parse(const char* filepath)
 {
-	vector<string> result;
+	vector<string> result; // result: saves unpacked file list.
 
 	ifstream fin;
 	uintmax_t file_size;
 
 	try {
-		fin.open(filepath, ifstream::binary);
+		fin.open(filepath, ifstream::binary); // open
 		file_size = filesystem::file_size(filepath);
 	}
 	catch (...) {
@@ -197,11 +200,13 @@ vector<string> Parse(const char* filepath)
 
 	auto buf = make_unique<char[]>(file_size);
 
-	fin.read(buf.get(), file_size);
+	fin.read(buf.get(), file_size); // read
 
+	// We uses buffer pointer to parse data header.
+	// After we read, we adds the size of data we read.
 	auto reader = buf.get();
 
-	if (strncmp(reader, ".HUFFMAN", 8))
+	if (strncmp(reader, ".HUFFMAN", 8)) // Confirm this package is huffman encoded package.
 	{
 		cout << "Error: this package is not huffman compressed one." << endl;
 		fin.close();
@@ -215,19 +220,23 @@ vector<string> Parse(const char* filepath)
 	auto head = Make_HuffmanTree(reader, length);
 	reader += 9 * length; // sizeof(char) + sizeof(long long)
 
-	length = ReadLong(reader);
+	length = ReadLong(reader); // The number of compressed files.
 	reader += 4;
 
-	vector<tuple<string, long, long>> list;
+	vector<tuple<string, long, long>> list; // a tuple vector container saves file name, offset, and real length
+
 	list.reserve(length);
+	result.reserve(length);
 
 	long offset, size;
 	for (int i = 0; i < length; i++)
 	{
 		string name = reader; // split context with end of string: '\000'
 		reader += name.size() + 1;
+
 		offset = ReadLong(reader);
 		reader += 4;
+
 		size = ReadLong(reader);
 		reader += 4;
 
@@ -236,21 +245,22 @@ vector<string> Parse(const char* filepath)
 	}
 
 	string path = g_strPath + "\\data";
-	if (_access(path.c_str(), 0) != -1)
+	if (_access(path.c_str(), 0) != -1) // remove the sub directories if there are already existing files. (collusion prevent)
 		RemoveFolder(path);
 
+	// make data folder and set it as working directory.
 	_mkdir(path.c_str());
 	_chdir(path.c_str());
 
 	for (auto iter = list.begin(); iter != list.end(); ++iter)
 	{
+		cout << "Write(" << distance(list.begin(), iter) + 1 << "/" << list.size() << "): " << get<0>(*iter) << endl;
 		if (iter + 1 == list.end())
-			length = file_size - (reader - buf.get());
+			length = 0; // we won't calc the last size since it is eof.
 		else
-			length = get<1>(*(iter + 1)) - get<1>(*iter);
+			length = get<1>(*(iter + 1)) - get<1>(*iter); // ..else the length of compressed data is (next offset - current offset).
 
-		int counter = 0;
-		auto bits = make_unique<bool[]>(8 * length);
+		auto bits = make_unique<bool[]>(8 * length); // bits using: 8 * compressed data size
 		memset(bits.get(), false, 8 * length);
 
 		for (int i = 0; i < length; i++)
@@ -263,6 +273,7 @@ vector<string> Parse(const char* filepath)
 		}
 
 		WriteFile(get<0>(*iter), head, bits, get<2>(*iter));
+		cout << "Complete." << endl;
 		reader += length;
 		bits.reset();
 	}

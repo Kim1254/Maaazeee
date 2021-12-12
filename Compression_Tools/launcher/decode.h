@@ -14,34 +14,40 @@
 
 extern std::string g_strPath;
 
+// pir char long long :)
 using pcll = std::pair<char, long long>;
 
-typedef struct snode_s {
-	snode_s(std::shared_ptr<struct snode_s>& left, pcll& value, std::shared_ptr<struct snode_s>& right)
+// A tree node with two children.
+// Chiledren uses shared pointer since the huffman tree called for many times.(and many copies and references.)
+typedef struct node_s {
+	node_s(std::shared_ptr<struct node_s>& left, pcll& value, std::shared_ptr<struct node_s>& right)
 	{
 		this->left = left;
 		this->value = value;
 		this->right = right;
 	};
 
-	snode_s(pcll& value)
+	node_s(pcll& value)
 	{
 		this->left = nullptr;
 		this->value = value;
 		this->right = nullptr;
 	};
 
-	void operator=(const struct snode_s& other)
+	void operator=(const struct node_s& other)
 	{
 		this->left = other.left;
 		this->value = other.value;
 		this->right = other.right;
 	};
 
-	std::shared_ptr<struct snode_s> left;
+	std::shared_ptr<struct node_s> left;
 	pcll value;
-	std::shared_ptr<struct snode_s> right;
-} snode_t;
+	std::shared_ptr<struct node_s> right;
+} node_t;
 
-std::vector<std::string> Parse(const char* filepath);
-void RemoveFolder(std::string& path);
+// TODO: Parse(Unpack) package
+std::vector<std::string> Parse(const char*);
+
+// TODO: Remove the folder and all files and folders in this folder.
+void RemoveFolder(std::string&);
