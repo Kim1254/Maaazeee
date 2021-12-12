@@ -10,12 +10,13 @@ using cstrmap = unordered_map<char, string>;
 
 void Make_HuffmanMap(cstrmap& map, unique_ptr<node_t>& node, string str)
 {
-	if (node == nullptr)
-		return;
-
-	Make_HuffmanMap(map, node->left, str + "0");
-	Make_HuffmanMap(map, node->right, str + "1");
-	map.insert(cstrmap::value_type(node->value.first, str));
+	if (node->left)
+	{
+		Make_HuffmanMap(map, node->left, str + "0");
+		Make_HuffmanMap(map, node->right, str + "1");
+	}
+	else
+		map.insert(cstrmap::value_type(node->value.first, str));
 }
 
 unsigned int TreeSize(unique_ptr<node_t>& node)

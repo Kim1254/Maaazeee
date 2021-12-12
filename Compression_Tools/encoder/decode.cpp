@@ -166,7 +166,7 @@ bool WriteFile(string& name, shared_ptr<snode_t>& head, unique_ptr<bool[]>& huff
 	for (int i = 0; i < length; i++)
 	{
 		nextnode = (!huffman_str[i]) ? node->left : node->right;
-
+		int('\n');
 		if (!nextnode->left)
 		{
 			fout.put(nextnode->value.first);
