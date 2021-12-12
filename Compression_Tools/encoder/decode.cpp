@@ -257,7 +257,6 @@ void Parse(const char* filepath)
 					bits[i * 8 + j] = true;
 			}
 		}
-		cout << endl;
 
 		WriteFile(get<0>(*iter), head, bits, get<2>(*iter));
 		reader += length;
