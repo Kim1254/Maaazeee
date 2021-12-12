@@ -1,6 +1,8 @@
 #include "base.h"
 #include "decode.h"
 
+#include <tuple>
+
 #pragma warning(disable: 6031)
 
 using namespace std;
@@ -102,8 +104,6 @@ shared_ptr<snode_t> Make_HuffmanTree(const char* buf, unsigned int length)
 
 	head = *list.begin();
 
-	list.clear();
-
 	return head;
 }
 
@@ -132,8 +132,11 @@ void RemoveFolder(string& path)
 	filesystem::remove(path.c_str());
 }
 
-bool WriteFile(string& name, shared_ptr<snode_t> head, unique_ptr<bool[]>& huffman_str, int length)
+bool WriteFile(string& name, shared_ptr<snode_t>& head, unique_ptr<bool[]>& huffman_str, int length)
 {
+	if (!head)
+		return true;
+
 	int index;
 	const char* p = name.c_str();
 	const char* q = strchr(p, '\\');
@@ -141,39 +144,39 @@ bool WriteFile(string& name, shared_ptr<snode_t> head, unique_ptr<bool[]>& huffm
 	while (q)
 	{
 		index = q - name.c_str();
-		_mkdir(name.substr(0, index).c_str());
+		_mkdir(("./output/" + name.substr(0, index)).c_str());
 
 		p = q;
 		q = strchr(p + 1, '\\');
 	}
 
+	cout << "Write file: " << name << endl;
 	ofstream fout;
 	try {
-		fout.open(name, ios_base::binary);
+		fout.open("./output/" + name, ios::out | ios::binary);
 	}
 	catch (...) {
 		cout << "Failed open file:" << name << endl;
 		return true;
 	}
 
-	shared_ptr<snode_t> node = head;
-
-	string text;
+	auto node = head;
+	shared_ptr<snode_t> nextnode;
 
 	for (int i = 0; i < length; i++)
 	{
-		if (node->left == nullptr)
+		nextnode = (!huffman_str[i]) ? node->left : node->right;
+
+		if (!nextnode->left)
 		{
-			fout.put(node->value.first);
+			fout.put(nextnode->value.first);
 			node = head;
 		}
-
-		if (!huffman_str[i])
-			node = node->left;
 		else
-			node = node->right;
+			node = nextnode;
 	}
 	fout.close();
+	cout << "Complete." << endl;
 	return false;
 }
 
@@ -183,7 +186,7 @@ void Parse(const char* filepath)
 	uintmax_t file_size;
 
 	try {
-		fin.open(filepath, ios_base::binary);
+		fin.open(filepath, ifstream::binary);
 		file_size = filesystem::file_size(filepath);
 	}
 	catch (...) {
@@ -214,17 +217,19 @@ void Parse(const char* filepath)
 	length = ReadLong(reader);
 	reader += 4;
 
-	vector<pair<string, long>> list;
+	vector<tuple<string, long, long>> list;
 	list.reserve(length);
 
-	cout << "len: " << length << endl;
+	long offset, size;
 	for (int i = 0; i < length; i++)
 	{
 		string name = reader; // split context with end of string: '\000'
 		reader += name.size() + 1;
-		auto offset = ReadLong(reader);
+		offset = ReadLong(reader);
 		reader += 4;
-		list.emplace_back(name, offset);
+		size = ReadLong(reader);
+		reader += 4;
+		list.emplace_back(name, offset, size);
 	}
 
 	string path = g_strPath + "\\output";
@@ -238,7 +243,7 @@ void Parse(const char* filepath)
 		if (iter + 1 == list.end())
 			length = file_size - (reader - buf.get());
 		else
-			length = (iter + 1)->second - iter->second;
+			length = get<1>(*(iter + 1)) - get<1>(*iter);
 
 		int counter = 0;
 		auto bits = make_unique<bool[]>(8 * length);
@@ -247,13 +252,19 @@ void Parse(const char* filepath)
 		for (int i = 0; i < length; i++)
 		{
 			for (int j = 0; j < 8; j++)
+			{
 				if (reader[i] & (1 << j))
 					bits[i * 8 + j] = true;
+			}
 		}
+		cout << endl;
 
-		WriteFile(iter->first, head, bits, length);
+		WriteFile(get<0>(*iter), head, bits, get<2>(*iter));
 		reader += length;
+		bits.reset();
 	}
+	buf.reset();
 
 	fin.close();
+	cout << "Decode ends." << endl;
 }

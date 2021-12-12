@@ -87,7 +87,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		try {
 			cout << "Read(" << ++i << "/" << file_list.size() << "): " << file.c_str() << endl;
 
-			fin.open(file.c_str(), ios::binary);
+			fin.open(file.c_str(), ifstream::binary);
 
 			auto file_size = filesystem::file_size(file);
 			auto buf = make_unique<char[]>(file_size);
@@ -208,12 +208,11 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 
 	function write_task = [&char_map](const char* buf, vector<bool>& wbuf, unsigned long long i, int length) {
 		string str = "";
-		table::iterator iter;
 		for (unsigned long long i = 0; i < length; i++)
 			str += char_map.at(buf[i]);
 
-		for (int i = 0; i < str.size(); i++)
-			wbuf.push_back((str[i] - '0') ? true : false);
+		for (auto c : str)
+			wbuf.push_back((c - '0') ? true : false);
 	};
 
 	i = 0;
@@ -239,13 +238,11 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		try {
 			cout << "Write(" << ++i << "/" << file_list.size() << "): " << file.c_str() << endl;
 
-			fin.open(file.c_str(), ios::binary);
+			fin.open(file.c_str(), ifstream::binary);
 
 			output_name += file;
 			output_name.push_back('\0');
 			swritel(output_name, output_context.size());
-
-			cout << file << ": " << output_context.size() << endl;
 
 			auto file_size = filesystem::file_size(file);
 			auto buf = make_unique<char[]>(file_size);
@@ -279,8 +276,10 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 
 			sub_threads.clear();
 
+			int total_length = 0;
 			for (auto& sub : sub_buffer)
 			{
+				total_length += sub.size();
 				for (int i = 0; i < sub.size(); i += 32)
 				{
 					int iMin = min(i + 32, (int)sub.size());
@@ -289,12 +288,13 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 					for (int j = i; j < iMin; j++)
 					{
 						if (sub[j] == true)
-							l |= (1 << (32 - (j - i)));
+							l |= (1 << (j + i));
 					}
 					swritel(output_context, l);
 				}
 				vector<bool>().swap(sub);
 			}
+			swritel(output_name, total_length);
 			vector<vector<bool>>().swap(sub_buffer);
 
 			buf.reset();
@@ -315,7 +315,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	ofstream fout;
 
 	try {
-		fout.open("data.pak", ios_base::binary);
+		fout.open("data.pak", ios::out | ios::binary);
 	}
 	catch (...) {
 		cout << "Failed creating output file." << endl;

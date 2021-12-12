@@ -88,6 +88,8 @@ int main(int argc, char* argv[])
 	if (Huffman(file_list) == nullptr)
 		cout << "Error: Failed creating output files." << endl;
 
+	system("pause>nul");
+
 	Parse("data.pak");
 
 	system("pause>nul");

@@ -10,7 +10,7 @@
 #include <algorithm>
 
 typedef struct snode_s {
-	snode_s(std::shared_ptr<struct snode_s> left, pcll& value, std::shared_ptr<struct snode_s> right)
+	snode_s(std::shared_ptr<struct snode_s>& left, pcll& value, std::shared_ptr<struct snode_s>& right)
 	{
 		this->left = left;
 		this->value = value;
@@ -24,9 +24,16 @@ typedef struct snode_s {
 		this->right = nullptr;
 	};
 
-	std::shared_ptr<struct node_s> left;
+	void operator=(const struct snode_s& other)
+	{
+		this->left = other.left;
+		this->value = other.value;
+		this->right = other.right;
+	};
+
+	std::shared_ptr<struct snode_s> left;
 	pcll value;
-	std::shared_ptr<struct node_s> right;
+	std::shared_ptr<struct snode_s> right;
 } snode_t;
 
 void Parse(const char* filepath);
