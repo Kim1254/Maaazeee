@@ -23,6 +23,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     _chdir(g_strPath.c_str());
 
+    if (!file_list.size())
+    {
+        MessageBox(nullptr, L"Cannot find data files! check you have data.pak in game directory.", L"ERROR", MB_OK);
+        return 1;
+    }
+
     SHELLEXECUTEINFO ShExecInfo;
     ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
     ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
@@ -36,7 +42,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     ShellExecuteEx(&ShExecInfo);
 
-    if (WaitForSingleObject(ShExecInfo.hProcess, 500) != WAIT_FAILED)
+    if (WaitForSingleObject(ShExecInfo.hProcess, 500) == WAIT_FAILED)
+    {
+        MessageBox(nullptr, L"Failed starting game process.", L"ERROR", MB_OK);
+        return 1;
+    }
+    else
     {
         while (WaitForSingleObject(ShExecInfo.hProcess, 500) != WAIT_OBJECT_0) {};
 
