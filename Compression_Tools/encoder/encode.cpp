@@ -8,18 +8,14 @@ using namespace chrono_literals;
 using table = unordered_map<char, long long>;
 using cstrmap = unordered_map<char, string>;
 
-void Make_HuffmanTree(cstrmap& map, unique_ptr<node_t>& node, string str)
+void Make_HuffmanMap(cstrmap& map, unique_ptr<node_t>& node, string str)
 {
 	if (node == nullptr)
 		return;
 
-	if (node->left == nullptr)
-		map.insert(cstrmap::value_type(node->value.first, str));
-	else
-	{
-		Make_HuffmanTree(map, node->left, str + "0");
-		Make_HuffmanTree(map, node->right, str + "1");
-	}
+	Make_HuffmanMap(map, node->left, str + "0");
+	Make_HuffmanMap(map, node->right, str + "1");
+	map.insert(cstrmap::value_type(node->value.first, str));
 }
 
 unsigned int TreeSize(unique_ptr<node_t>& node)
@@ -33,22 +29,26 @@ unsigned int TreeSize(unique_ptr<node_t>& node)
 	return size;
 }
 
-void Write_Huffman(ofstream& file, unique_ptr<node_t>& node)
+void WriteLong(ofstream& stream, long l)
 {
-	if (node == nullptr)
-		return;
+	union swap {
+		long l;
+		char c[4];
+	} temp;
+	temp.l = l;
 
-	file << node->value.first;
-	union swapping {
-		long long value;
+	stream.write(temp.c, 4);
+}
+
+void WriteDoubleLong(ofstream& stream, long long ll)
+{
+	union swap {
+		long long ll;
 		char c[8];
 	} temp;
+	temp.ll = ll;
 
-	temp.value = node->value.second;
-	file.write(temp.c, 8);
-
-	Write_Huffman(file, node->left);
-	Write_Huffman(file, node->left);
+	stream.write(temp.c, 8);
 }
 
 unique_ptr<node_t> Huffman(vector<string>& file_list)
@@ -140,11 +140,6 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		counter.push_back(make_unique<node_t>(value));
 	}
 
-	sort(counter.begin(), counter.end(),
-		[](unique_ptr<node_t>& a, unique_ptr<node_t>& b) -> bool {
-		return a->value.second < b->value.second;
-	});
-
 	cout << "Character count complete. (Total " << counter.size() << ")" << endl;
 
 	while (counter.size() != 1)
@@ -207,21 +202,9 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	cout << "Tree construction complete. (Total " << TreeSize(head) << " nodes)" << endl;
 
 	cstrmap char_map;
-	Make_HuffmanTree(char_map, head, "");
+	Make_HuffmanMap(char_map, head, "");
 
 	cout << "Huffman tree construction complete. (Total " << char_map.size() << ")" << endl;
-
-	ofstream fout;
-
-	try {
-		fout.open("data.pak", ios_base::binary);
-	}
-	catch (...) {
-		cout << "Failed creating output file." << endl;
-		return nullptr;
-	}
-	fout << ".HUFFMAN";
-	Write_Huffman(fout, head);
 
 	function write_task = [&char_map](const char* buf, vector<bool>& wbuf, unsigned long long i, int length) {
 		string str = "";
@@ -240,8 +223,17 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	vector<bool> name;
 	vector<vector<bool>> sub_buffer;
 
-	char c;
+	function swritel = [](string& string, long l) {
+		union swap {
+			long l;
+			char c[4];
+		} temp;
+		temp.l = l;
 
+		for (int i = 0; i < 4; i++)
+			string.push_back(temp.c[i]);
+	};
+	
 	for (auto& file : file_list)
 	{
 		try {
@@ -250,14 +242,10 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 			fin.open(file.c_str(), ios::binary);
 
 			output_name += file;
-			for (int i = 0; i < 4; i++)
-			{
-				c = 0;
-				for (int j = 0; j < 8; j++)
-					if ((1 << (i * 8 + j)) & output_context.size())
-						c |= (1 << (8 - j));
-				output_name.push_back(c);
-			};
+			output_name.push_back('\0');
+			swritel(output_name, output_context.size());
+
+			cout << file << ": " << output_context.size() << endl;
 
 			auto file_size = filesystem::file_size(file);
 			auto buf = make_unique<char[]>(file_size);
@@ -293,17 +281,17 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 
 			for (auto& sub : sub_buffer)
 			{
-				for (int i = 0; i < sub.size(); i += 8)
+				for (int i = 0; i < sub.size(); i += 32)
 				{
-					int iMin = min(i + 8, (int)sub.size());
-					c = 0;
+					int iMin = min(i + 32, (int)sub.size());
+					long l = 0;
 
 					for (int j = i; j < iMin; j++)
 					{
 						if (sub[j] == true)
-							c |= (1 << (8 - j - i));
+							l |= (1 << (32 - (j - i)));
 					}
-					output_context.push_back(c);
+					swritel(output_context, l);
 				}
 				vector<bool>().swap(sub);
 			}
@@ -318,13 +306,34 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 		}
 	}
 
-	fout.write(output_name.c_str(), output_name.size());
-	fout.write(output_context.c_str(), output_context.size());
-
 	vector<unique_ptr<node_t>>().swap(counter);
 	vector<bool>().swap(name);
 	vector<future<void>>().swap(threads);
 	vector<future<void>>().swap(sub_threads);
+
+	_chdir(g_strPath.c_str());
+	ofstream fout;
+
+	try {
+		fout.open("data.pak", ios_base::binary);
+	}
+	catch (...) {
+		cout << "Failed creating output file." << endl;
+		return nullptr;
+	}
+
+	fout << ".HUFFMAN";
+	WriteLong(fout, map.size());
+
+	for (auto iter = map.begin(); iter != map.end(); ++iter)
+	{
+		fout.put(iter->first);
+		WriteDoubleLong(fout, iter->second);
+	}
+
+	WriteLong(fout, file_list.size());
+	fout.write(output_name.c_str(), output_name.size());
+	fout.write(output_context.c_str(), output_context.size());
 
 	fout.close();
 	cout << "Write ends." << endl;

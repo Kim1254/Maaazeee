@@ -27,9 +27,15 @@
     <ClInclude Include="launcher.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="decode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="launcher.cpp">
+      <Filter>Source Codes</Filter>
+    </ClCompile>
+    <ClCompile Include="decode.cpp">
       <Filter>Source Codes</Filter>
     </ClCompile>
   </ItemGroup>

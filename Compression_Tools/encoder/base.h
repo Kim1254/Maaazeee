@@ -3,7 +3,6 @@
 #pragma once
 
 #include <iostream>
-#include <utility>
 
 #include <string>
 #include <vector>
@@ -23,5 +22,7 @@
 #include <functional>
 
 #include "encode.h"
+
+extern std::string g_strPath;
 
 #endif
