@@ -31,6 +31,6 @@ typedef struct node_s {
 	std::unique_ptr<struct node_s> right;
 } node_t;
 
-std::unique_ptr<node_t> Huffman(std::vector<std::string>&);
+std::unique_ptr<node_t> Huffman(std::vector<std::string>&, std::string);
 
 #endif

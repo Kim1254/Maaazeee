@@ -45,7 +45,7 @@ class Default(Stage):
                                         relief='solid')
         self.master.canvas['bg'] = '#ffffff'
 
-        self.master.canvas.create_image('./image/bg/bg1.png',
+        self.master.canvas.create_image('./data/image/bg/bg1.png',
                                         0, 0, self.master.width, self.master.tall,
                                         anchor=NW)
 
@@ -82,43 +82,43 @@ class Default(Stage):
         self.pointer.clear()
         if self.offset_y > 0:
             button = ImagedButton(del_x[0], del_y[0], 'MoveScreen 0')
-            button.SetImage('./image/default/pointer00.png',
-                            './image/default/pointer01.png',
-                            './image/default/pointer02.png',
+            button.SetImage('./data/image/default/pointer00.png',
+                            './data/image/default/pointer01.png',
+                            './data/image/default/pointer02.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
 
         if len(self.map) - self.offset_y > 20:
             button = ImagedButton(del_x[1], del_y[1], 'MoveScreen 1')
-            button.SetImage('./image/default/pointer10.png',
-                            './image/default/pointer11.png',
-                            './image/default/pointer12.png',
+            button.SetImage('./data/image/default/pointer10.png',
+                            './data/image/default/pointer11.png',
+                            './data/image/default/pointer12.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
 
         if self.offset_x > 0:
             button = ImagedButton(del_x[2], del_y[2], 'MoveScreen 2')
-            button.SetImage('./image/default/pointer20.png',
-                            './image/default/pointer21.png',
-                            './image/default/pointer22.png',
+            button.SetImage('./data/image/default/pointer20.png',
+                            './data/image/default/pointer21.png',
+                            './data/image/default/pointer22.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
 
         if len(self.map[0]) - self.offset_x > 20:
             button = ImagedButton(del_x[3], del_y[3], 'MoveScreen 3')
-            button.SetImage('./image/default/pointer30.png',
-                            './image/default/pointer31.png',
-                            './image/default/pointer32.png',
+            button.SetImage('./data/image/default/pointer30.png',
+                            './data/image/default/pointer31.png',
+                            './data/image/default/pointer32.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
 
         x = self.master.width * 0.65
 
-        font = FontManager('font/NanumSquareEB.ttf', 30)
+        font = FontManager('data/font/NanumSquareEB.ttf', 30)
         font.SetColor(0, 0, 0, 255)
 
         array = font.GetTextImage(self.title)
@@ -128,22 +128,22 @@ class Default(Stage):
 
         retry = ImagedButton(x, y, 'Retry')
         retry.SetImage(
-            TImg('./image/default/retry0'), TImg('./image/default/retry1'), TImg('./image/default/retry2'),
+            TImg('./data/image/default/retry0'), TImg('./data/image/default/retry1'), TImg('./data/image/default/retry2'),
             80, 80)
         retry.canvas_hook(self.master.canvas)
 
         exit = ImagedButton(x + 100, y, 'Stage_Exit')
         exit.SetImage(
-            TImg('./image/default/exit0'), TImg('./image/default/exit1'), TImg('./image/default/exit2'),
+            TImg('./data/image/default/exit0'), TImg('./data/image/default/exit1'), TImg('./data/image/default/exit2'),
             80, 80)
         exit.canvas_hook(self.master.canvas)
 
         y += 90
 
-        image = self.master.canvas.create_image('./image/default/key.png', x, y, 30, 30, anchor=NW)
+        image = self.master.canvas.create_image('./data/image/default/key.png', x, y, 30, 30, anchor=NW)
         self.remove.append(self.master.canvas.image[-1])
 
-        font = FontManager('font/NanumSquareR.ttf', 16)
+        font = FontManager('data/font/NanumSquareR.ttf', 16)
         font.SetColor(0, 0, 0, 255)
         array = font.GetTextImage(Translate("#GAME_GameText_Default_SearchType"))
 
@@ -158,7 +158,7 @@ class Default(Stage):
         xx = x
         for i in range(4):
             image = self.master.canvas.create_image(
-                './image/default/checkbox_{}.png'.format('on' if i == self.path_find else 'off'),
+                './data/image/default/checkbox_{}.png'.format('on' if i == self.path_find else 'off'),
                 xx, y, 20, 20, anchor=NW)
             self.checkbox.append(image)
             self.remove.append(self.master.canvas.image[-1])
@@ -177,18 +177,18 @@ class Default(Stage):
 
         width = 40
 
-        font = FontManager('font/NanumSquareR.ttf', 20)
+        font = FontManager('data/font/NanumSquareR.ttf', 20)
         font.SetColor(0, 0, 0, 255)
 
         array = font.GetTextImage('00:00')
-        self.master.canvas.create_image('./image/default/timer.png', x, y, width, width, anchor=NW)
+        self.master.canvas.create_image('./data/image/default/timer.png', x, y, width, width, anchor=NW)
 
         x += width + 10
         timer = self.master.canvas.create_FontImage(array, x, y + (width - array.shape[0]) // 2)
         x += array.shape[1] + 20
 
         array = font.GetTextImage('0')
-        self.master.canvas.create_image('./image/default/move.png', x, y, width, width, anchor=NW)
+        self.master.canvas.create_image('./data/image/default/move.png', x, y, width, width, anchor=NW)
         x += width + 10
 
         move = self.master.canvas.create_FontImage(array, x, y + (width - array.shape[0]) // 2)
@@ -241,7 +241,7 @@ class Default(Stage):
     def OpenThread(self, timer_image, move_image):
         def update(self, img_time, img_move, event_time):
             self.threading = True
-            font = FontManager('font/NanumSquareR.ttf', 20)
+            font = FontManager('data/font/NanumSquareR.ttf', 20)
             font.SetColor(0, 0, 0)
             while self.valid:
                 if self.th_kill:
@@ -297,7 +297,7 @@ class Default(Stage):
                 break
 
         for elem in self.checkbox:
-            rgba = image2rgba('./image/default/checkbox_{}.png'.format('on' if elem == click else 'off'), w, w)
+            rgba = image2rgba('./data/image/default/checkbox_{}.png'.format('on' if elem == click else 'off'), w, w)
             image = cv2Tk(rgba)
             for eleme in self.master.canvas.image:
                 if eleme[0] == elem:
@@ -453,7 +453,7 @@ class Default(Stage):
 
         x, y = self.master.width * 0.7, self.master.tall - 110
 
-        font = FontManager('font/NanumSquareR.ttf', 16)
+        font = FontManager('data/font/NanumSquareR.ttf', 16)
         font.SetColor(0, 0, 0)
         array = font.GetTextImage(Translate("#GAME_GameText_Default_TotalMove"))
         y -= array.shape[0]
@@ -489,7 +489,7 @@ class Default(Stage):
         else:
             next = ImagedButton(self.master.width * 0.65 + 50, y - 90, 'NextStage')
             next.SetImage(
-                TImg('./image/default/next0'), TImg('./image/default/next1'), TImg('./image/default/next2'),
+                TImg('./data/image/default/next0'), TImg('./data/image/default/next1'), TImg('./data/image/default/next2'),
                 80, 80)
             next.canvas_hook(self.master.canvas)
             next.Event_Bind()
@@ -497,7 +497,7 @@ class Default(Stage):
             if mylen == length:
                 ft.SetColor(225, 228, 0)
             else:
-                ft = FontManager('font/NanumSquareEB.ttf', 16)
+                ft = FontManager('data/font/NanumSquareEB.ttf', 16)
                 ft.SetColor(30, 220, 25)
 
         array = ft.GetTextImage('{}'.format(len(path[0])))
@@ -579,36 +579,36 @@ class Default(Stage):
         self.pointer.clear()
         if self.offset_y > 0:
             button = ImagedButton(del_x[0], del_y[0], 'MoveScreen 0')
-            button.SetImage('./image/default/pointer00.png',
-                            './image/default/pointer01.png',
-                            './image/default/pointer02.png',
+            button.SetImage('./data/image/default/pointer00.png',
+                            './data/image/default/pointer01.png',
+                            './data/image/default/pointer02.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
 
         if len(self.map) - self.offset_y > 20:
             button = ImagedButton(del_x[1], del_y[1], 'MoveScreen 1')
-            button.SetImage('./image/default/pointer10.png',
-                            './image/default/pointer11.png',
-                            './image/default/pointer12.png',
+            button.SetImage('./data/image/default/pointer10.png',
+                            './data/image/default/pointer11.png',
+                            './data/image/default/pointer12.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
 
         if self.offset_x > 0:
             button = ImagedButton(del_x[2], del_y[2], 'MoveScreen 2')
-            button.SetImage('./image/default/pointer20.png',
-                            './image/default/pointer21.png',
-                            './image/default/pointer22.png',
+            button.SetImage('./data/image/default/pointer20.png',
+                            './data/image/default/pointer21.png',
+                            './data/image/default/pointer22.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
 
         if len(self.map[0]) - self.offset_x > 20:
             button = ImagedButton(del_x[3], del_y[3], 'MoveScreen 3')
-            button.SetImage('./image/default/pointer30.png',
-                            './image/default/pointer31.png',
-                            './image/default/pointer32.png',
+            button.SetImage('./data/image/default/pointer30.png',
+                            './data/image/default/pointer31.png',
+                            './data/image/default/pointer32.png',
                             48, 48)
             button.canvas_hook(self.master.canvas)
             self.pointer.append(button)
@@ -618,7 +618,7 @@ class Default(Stage):
                 elem.Event_Bind()
 
     def MakeCustomMap(self):
-        font = FontManager('font/NanumSquareEB.ttf', 25)
+        font = FontManager('data/font/NanumSquareEB.ttf', 25)
         font.SetColor(0, 0, 0)
 
         x = self.master.width * 0.5
@@ -631,7 +631,7 @@ class Default(Stage):
         self.remove.append(self.master.canvas.font_image[-1])
         y += array.shape[0] + 15
 
-        font = FontManager('font/NanumSquareR.ttf', 20)
+        font = FontManager('data/font/NanumSquareR.ttf', 20)
         font.SetColor(0, 0, 0)
 
         array = font.GetTextImage(Translate("#GAME_GameText_Default_Announcement1"))
@@ -660,7 +660,7 @@ class Default(Stage):
         self.remove.append(self.master.canvas.font_image[-1])
         y += font_tall + 20
 
-        font = FontManager('font/NanumSquareEB.ttf', 20)
+        font = FontManager('data/font/NanumSquareEB.ttf', 20)
         font.SetColor(0, 0, 0)
 
         x = self.master.width * 0.375
@@ -688,7 +688,7 @@ class Default(Stage):
 
         button = ImagedButton(x - 40, y, 'MakeMap')
         button.SetImage(
-            TImg('./image/default/make0'), TImg('./image/default/make1'), TImg('./image/default/make2'),
+            TImg('./data/image/default/make0'), TImg('./data/image/default/make1'), TImg('./data/image/default/make2'),
             80, 80)
         button.canvas_hook(self.master.canvas)
         button.Event_Bind()
@@ -725,7 +725,7 @@ class Default(Stage):
             x = self.master.width * 0.5
             y = self.master.tall * 0.1
 
-            font = FontManager('font/NanumSquareEB.ttf', 25)
+            font = FontManager('data/font/NanumSquareEB.ttf', 25)
             font.SetColor(0, 0, 0)
 
             array = font.GetTextImage(Translate("#GAME_GameText_Default_Title_Error"))
@@ -733,7 +733,7 @@ class Default(Stage):
             self.remove.append(self.master.canvas.font_image[-1])
             y += array.shape[0] + 15
 
-            font = FontManager('font/NanumSquareR.ttf', 20)
+            font = FontManager('data/font/NanumSquareR.ttf', 20)
             font.SetColor(255, 30, 30)
 
             array = font.GetTextImage(

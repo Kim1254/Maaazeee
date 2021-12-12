@@ -9,34 +9,39 @@
 #include <filesystem>
 #include <algorithm>
 
+#include <io.h>
+#include <direct.h>
+
+extern std::string g_strPath;
+
 using pcll = std::pair<char, long long>;
 
-typedef struct node_s {
-	node_s(std::unique_ptr<struct node_s>& left, pcll& value, std::unique_ptr<struct node_s>& right)
+typedef struct snode_s {
+	snode_s(std::shared_ptr<struct snode_s>& left, pcll& value, std::shared_ptr<struct snode_s>& right)
 	{
-		this->left = std::move(left);
+		this->left = left;
 		this->value = value;
-		this->right = std::move(right);
+		this->right = right;
 	};
 
-	node_s(pcll& value)
+	snode_s(pcll& value)
 	{
 		this->left = nullptr;
 		this->value = value;
 		this->right = nullptr;
 	};
 
-	~node_s()
+	void operator=(const struct snode_s& other)
 	{
-		if (this->left != nullptr)
-			this->left.reset();
-		if (this->right != nullptr)
-			this->left.reset();
+		this->left = other.left;
+		this->value = other.value;
+		this->right = other.right;
 	};
 
-	std::unique_ptr<struct node_s> left;
+	std::shared_ptr<struct snode_s> left;
 	pcll value;
-	std::unique_ptr<struct node_s> right;
-} node_t;
+	std::shared_ptr<struct snode_s> right;
+} snode_t;
 
-void Parse(const char* filepath);
+std::vector<std::string> Parse(const char* filepath);
+void RemoveFolder(std::string& path);

@@ -55,7 +55,7 @@ class Tutorial(Stage):
         self.master.lbl_list.append(label)
 
         self.master.canvas.image.clear()
-        image = self.master.canvas.create_image('./image/tutorial/keycursor.png', self.master.width * 0.05, 196, 200, 92, anchor=W)
+        image = self.master.canvas.create_image('./data/image/tutorial/keycursor.png', self.master.width * 0.05, 196, 200, 92, anchor=W)
         rgba = self.master.canvas.image[0][1]
 
         new_rgba = MatrixScalar(rgba, [255, 255, 255, 0])

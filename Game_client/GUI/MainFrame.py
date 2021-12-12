@@ -110,9 +110,9 @@ class MainWindow:
             if self.manager.Check() == 3:
                 self.Command(self, 'Clear')
             else:
-                self.sound.Play('./sound/move.mp3', ChannelList.Effect)
+                self.sound.Play('./data/sound/move.mp3', ChannelList.Effect)
         elif cmd == 'Clear':
-            self.sound.Play('./sound/clear.mp3', ChannelList.Effect)
+            self.sound.Play('./data/sound/clear.mp3', ChannelList.Effect)
             self.stage.Clear()
         elif cmd == 'NextStage':
             self.stage_level = min(6, self.stage_level + 1)
@@ -284,13 +284,13 @@ class MainWindow:
 
         label = FontLabel(self.window, bg='#ffffff', relief="solid")
         label.place(relx=0.35, rely=0.15, relwidth=0.3, height=30)
-        label.SetFont("font/NanumSquareEB.ttf", 20)
+        label.SetFont("data/font/NanumSquareEB.ttf", 20)
         label.SetText(Translate("#GAME_OptionText_Language"))
         self.lbl_list.append(label)
 
         label = FontLabel(self.window, bg='#ffffff', relief="solid")
         label.place(relx=0.325, rely=0.3, relwidth=0.15, height=30)
-        label.SetFont("font/NanumSquareR.ttf", 20)
+        label.SetFont("data/font/NanumSquareR.ttf", 20)
         if tm.game_language == translation_korean:
             label.SetColor(0, 200, 0)
         label.SetText(Translate("#GAME_OptionText_Korean"))
@@ -301,7 +301,7 @@ class MainWindow:
 
         label = FontLabel(self.window, bg='#ffffff', relief="solid")
         label.place(relx=0.525, rely=0.3, relwidth=0.15, height=30)
-        label.SetFont("font/NanumSquareR.ttf", 20)
+        label.SetFont("data/font/NanumSquareR.ttf", 20)
         if tm.game_language == translation_english:
             label.SetColor(0, 200, 0)
         label.SetText(Translate("#GAME_OptionText_English"))
@@ -312,14 +312,14 @@ class MainWindow:
 
         label = FontLabel(self.window, bg='#ffffff', bd=0, relief="solid")
         label.place(relx=0.2, rely=0.42, relwidth=0.6, height=30)
-        label.SetFont("font/NanumSquareEB.ttf", 14)
+        label.SetFont("data/font/NanumSquareEB.ttf", 14)
         label.SetText(Translate("#GAME_OptionText_LanguageAnnouncement"))
         label.bind("<ButtonRelease-1>", self.Event_SetLanguage)
         self.lbl_list.append(label)
 
         label = FontLabel(self.window, bg='#ffffff', relief="solid")
         label.place(relx=0.35, rely=0.5, relwidth=0.3, height=30)
-        label.SetFont("font/NanumSquareEB.ttf", 20)
+        label.SetFont("data/font/NanumSquareEB.ttf", 20)
         label.SetText(Translate("#GAME_OptionText_Volume"))
         self.lbl_list.append(label)
 
@@ -472,7 +472,7 @@ class MainWindow:
         self.canvas.image.clear()
         self.canvas.font_image.clear()
 
-        self.sound.Play('./sound/lobby.mp3', ChannelList.Background, 1, self.master_volume * 0.3)
+        self.sound.Play('./data/sound/lobby.mp3', ChannelList.Background, 1, self.master_volume * 0.3)
 
         self.page = Page.Main
 

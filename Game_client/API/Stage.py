@@ -34,7 +34,7 @@ class Stage:
         self.master.manager.map = self.map
 
     def CannotMove(self):
-        self.master.sound.Play('./sound/warning.mp3', ChannelList.Effect)
+        self.master.sound.Play('./data/sound/warning.mp3', ChannelList.Effect)
 
     def Exit(self):
         self.master.Command(self, 'MainScreen')

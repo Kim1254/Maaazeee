@@ -52,7 +52,7 @@ void WriteDoubleLong(ofstream& stream, long long ll)
 	stream.write(temp.c, 8);
 }
 
-unique_ptr<node_t> Huffman(vector<string>& file_list)
+unique_ptr<node_t> Huffman(vector<string>& file_list, string output_file_name)
 {
 	if (!file_list.size())
 		return nullptr;
@@ -316,7 +316,7 @@ unique_ptr<node_t> Huffman(vector<string>& file_list)
 	ofstream fout;
 
 	try {
-		fout.open("data.pak", ios::out | ios::binary);
+		fout.open((output_file_name + ".pak").c_str(), ios::out | ios::binary);
 	}
 	catch (...) {
 		cout << "Failed creating output file." << endl;

@@ -1,6 +1,5 @@
 ﻿#include "base.h"
 #include "encode.h"
-#include "decode.h"
 
 using namespace std;
 
@@ -85,14 +84,8 @@ int main(int argc, char* argv[])
 	if (std::filesystem::is_directory(argv[1]))
 		_chdir(argv[1]);
 
-	if (Huffman(file_list) == nullptr)
+	if (Huffman(file_list, target.substr(get_last_index(target, '\\') + 1)) == nullptr)
 		cout << "Error: Failed creating output files." << endl;
-
-	system("pause>nul");
-
-	Parse("data.pak");
-
-	system("pause>nul");
 
 	return 1;
 }

@@ -260,7 +260,7 @@ class GameCanvas(Canvas):
 
         self.dir_image.clear()
         for i in range(8):
-            name = './image/tutorial/dir{0}{1}.png'.format(i // 2, 'g' if i % 2 == 0 else 'r')
+            name = './data/image/tutorial/dir{0}{1}.png'.format(i // 2, 'g' if i % 2 == 0 else 'r')
             rgba = image2rgba(name, w - 2, t - 2)
             img = cv2Tk(rgba)
             self.dir_image.append([rgba, img])

@@ -8,16 +8,24 @@
 
 #include "decode.h"
 
+std::string g_strPath;
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
-    Parse("data.pak");
-    return 0;
+    char current[300];
+    _getcwd(current, 300);
+    g_strPath = current;
+
+    auto file_list = Parse("data.pak");
+
+    _chdir(g_strPath.c_str());
+
     SHELLEXECUTEINFO ShExecInfo;
     ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-    ShExecInfo.fMask = NULL;
+    ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
     ShExecInfo.hwnd = NULL;
     ShExecInfo.lpVerb = NULL;
     ShExecInfo.lpFile = _T("main\\main.exe");
@@ -27,5 +35,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     ShExecInfo.hInstApp = NULL;
 
     ShellExecuteEx(&ShExecInfo);
+
+    if (WaitForSingleObject(ShExecInfo.hProcess, 500) != WAIT_FAILED)
+    {
+        while (WaitForSingleObject(ShExecInfo.hProcess, 500) != WAIT_OBJECT_0) {};
+
+        auto rm = g_strPath + "\\data";
+        RemoveFolder(rm);
+    }
+    
     return 0;
 }
